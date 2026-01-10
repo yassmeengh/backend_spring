@@ -6,15 +6,16 @@ services:
     plan: free
     dockerfilePath: ./Dockerfile
     envVars:
-      - key: SPRING_DATASOURCE_URL
-        value: jdbc:postgresql://aws-1-eu-west-1.pooler.supabase.com:6543/postgres
-      - key: SPRING_DATASOURCE_USERNAME
-        value: postgres.bvxixhkvumgcwpabwkwj
-      - key: SPRING_DATASOURCE_PASSWORD
-        value: yasmine2026projet
-      - key: JWT_SECRET
-        generateValue: true
       - key: PORT
         value: 10000
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:postgresql://aws-1-eu-west-1.pooler.supabase.com:6543/postgres?sslmode=require
+      - key: SPRING_DATASOURCE_USERNAME
+        value: postgres.bvxixhkvumgcwpabwkwj
+      - key: SPRRING_DATASOURCE_PASSWORD
+        value: yasmine2026projet
       - key: SPRING_PROFILES_ACTIVE
         value: production
+      - key: JWT_SECRET
+        generateValue: true
+    healthCheckPath: /actuator/health

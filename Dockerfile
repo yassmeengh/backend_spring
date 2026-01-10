@@ -9,15 +9,18 @@ WORKDIR /app
 COPY pom.xml .
 COPY src ./src
 
-# Ajoutez -Dfile.encoding=UTF-8 et vérifiez les fichiers
-RUN apt-get update && apt-get install -y file
-RUN find /app/src -name "*.properties" -exec file {} \;
-
 # Compilez avec encodage UTF-8
 RUN mvn clean package -DskipTests -Dfile.encoding=UTF-8
+
+# Vérifier le contenu du JAR
+RUN jar tf /app/target/*.jar | head -20
 
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
-EXPOSE 10000
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# Expose the port from environment variable
+EXPOSE ${PORT:-10000}
+
+# Run with production profile
+ENTRYPOINT ["sh", "-c", "java -Dspring.profiles.active=production -Dserver.port=${PORT:-10000} -jar app.jar"]
