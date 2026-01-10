@@ -7,8 +7,11 @@ services:
     dockerfilePath: ./Dockerfile
     envVars:
       - key: SPRING_DATASOURCE_URL
-        value: jdbc:postgresql://postgres:yasmine2026%2Fprojet@db.ahavhwdridkzubwtjmuu.supabase.co:5432/postgres
-      # Remove SPRING_DATASOURCE_USERNAME and SPRING_DATASOURCE_PASSWORD entirely
+        value: jdbc:postgresql://postgres:yasmine2026projet@db.ahavhwdridkzubwtjmuu.supabase.co:5432/postgres
+      - key: SPRING_DATASOURCE_USERNAME
+        value: postgres
+      - key: SPRING_DATASOURCE_PASSWORD
+        value: yasmine2026projet
       - key: JWT_SECRET
         generateValue: true
       - key: PORT
