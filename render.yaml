@@ -1,21 +1,23 @@
-services:
-  - type: web
-    name: gestion-conges-backend
-    env: docker
-    region: oregon
-    plan: free
-    dockerfilePath: ./Dockerfile
-    envVars:
-      - key: PORT
-        value: 10000
-      - key: SPRING_DATASOURCE_URL
-        value: jdbc:postgresql://aws-1-eu-west-1.pooler.supabase.com:6543/postgres?sslmode=require
-      - key: SPRING_DATASOURCE_USERNAME
-        value: postgres.bvxixhkvumgcwpabwkwj
-      - key: SPRRING_DATASOURCE_PASSWORD
-        value: yasmine2026projet
-      - key: SPRING_PROFILES_ACTIVE
-        value: production
-      - key: JWT_SECRET
-        generateValue: true
-    healthCheckPath: /actuator/health
+# Utilisez une image avec Java 17
+FROM maven:3.9.6-eclipse-temurin-17 AS build
+  
+  # Définir l'encodage UTF-8 explicitement
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+  
+  # Compilez avec encodage UTF-8
+RUN mvn clean package -DskipTests -Dfile.encoding=UTF-8
+
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
+  
+  # Expose the port from environment variable
+EXPOSE ${PORT:-10000}
+  
+  # Simple entrypoint - profiles will be read from environment
+ENTRYPOINT ["java", "-jar", "app.jar"]
