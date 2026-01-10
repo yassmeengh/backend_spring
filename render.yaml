@@ -7,9 +7,9 @@ services:
     dockerfilePath: ./Dockerfile
     envVars:
       - key: SPRING_DATASOURCE_URL
-        value: jdbc:postgresql://db.ahavhwdridkzubwtjmuu.supabase.co:5432/postgres
+        value: jdbc:postgresql://aws-1-eu-west-1.pooler.supabase.com:6543/postgres
       - key: SPRING_DATASOURCE_USERNAME
-        value: postgres
+        value: postgres.bvxixhkvumgcwpabwkwj
       - key: SPRING_DATASOURCE_PASSWORD
         value: yasmine2026projet
       - key: JWT_SECRET
