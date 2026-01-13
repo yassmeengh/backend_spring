@@ -55,12 +55,14 @@
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
+
         <!-- Base de données PostgreSQL -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
+            <version>42.6.0</version>
         </dependency>
+
 
         <!-- GreenMail for testing emails -->
         <dependency>
