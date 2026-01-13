@@ -1,4 +1,5 @@
 package art.org.example.gestion_des_conges.security;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,22 +20,44 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider tokenProvider;
     private final UserDetailsService userDetailsService;
+    private final JwtTokenBlacklist tokenBlacklist;
 
-    public JwtAuthenticationFilter(JwtTokenProvider tokenProvider, UserDetailsService userDetailsService) {
+    // CORRECTION: Modifier le constructeur pour inclure JwtTokenBlacklist
+    public JwtAuthenticationFilter(JwtTokenProvider tokenProvider,
+                                   UserDetailsService userDetailsService,
+                                   JwtTokenBlacklist tokenBlacklist) {
         this.tokenProvider = tokenProvider;
         this.userDetailsService = userDetailsService;
+        this.tokenBlacklist = tokenBlacklist;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
             throws ServletException, IOException {
 
         try {
             String jwt = getJwtFromRequest(request);
 
+            // AJOUT: Vérifier si le token est dans la blacklist
+            if (jwt != null && tokenBlacklist.isBlacklisted(jwt)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write(
+                        "{\"error\": \"Session expirée\", \"message\": \"Veuillez vous reconnecter\"}"
+                );
+                return; // Arrêter le traitement ici
+            }
+
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
                 String username = tokenProvider.getUsernameFromToken(jwt);
+
+                // OPTION 1: Charger l'utilisateur depuis la base de données
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+                // OPTION 2: Créer un UserDetails à partir du token (plus rapide, moins sécurisé)
+                // UserDetails userDetails = createUserDetailsFromToken(jwt, username);
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

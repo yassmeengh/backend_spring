@@ -61,15 +61,8 @@ public class User implements UserDetails {
     @Column
     private LocalDateTime updatedAt;
 
-    // Solde de congés
-    @Column(nullable = false)
-    private Double soldeCongesPayes = 25.0; // 25 jours par défaut
-
-    @Column(nullable = false)
-    private Double soldeMaladie = 0.0;
-
-    @Column(nullable = false)
-    private Double soldeExceptionnel = 0.0;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<LeaveBalance> leaveBalances;
 
     // UserDetails implementation
     @Override

@@ -11,7 +11,6 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
-    // CORRIGEZ CETTE MÉTHODE : ajoutez le paramètre username
     public void sendWelcomeEmail(String to, String fullName, String tempPassword, String username) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
@@ -23,12 +22,12 @@ public class EmailService {
                 + "• Mot de passe temporaire : " + tempPassword + "\n"
                 + "• Email : " + to + "\n\n"
                 + "⚠️ Veuillez changer votre mot de passe à la première connexion.\n\n"
-                + "Pour vous connecter, rendez-vous sur : http://localhost:8080\n\n"
+                + "Pour vous connecter, rendez-vous sur : " + to + "\n\n"
                 + "Cordialement,\nL'équipe des Ressources Humaines");
         mailSender.send(message);
     }
 
-    // Optionnel : Ajoutez d'autres méthodes email
+    // AJOUTER CETTE MÉTHODE
     public void sendPasswordResetEmail(String to, String fullName, String resetLink) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
@@ -38,6 +37,19 @@ public class EmailService {
                 + "🔗 Cliquez sur ce lien pour créer un nouveau mot de passe :\n"
                 + resetLink + "\n\n"
                 + "⚠️ Ce lien expire dans 24 heures.\n\n"
+                + "Si vous n'avez pas fait cette demande, veuillez ignorer cet email.\n\n"
+                + "Cordialement,\nL'équipe des Ressources Humaines");
+        mailSender.send(message);
+    }
+
+    // AJOUTER CETTE MÉTHODE POUR LES NOTIFICATIONS FUTURES
+    public void sendLeaveRequestNotification(String to, String fullName, String status, String details) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject("Mise à jour de votre demande de congé");
+        message.setText("Bonjour " + fullName + ",\n\n"
+                + "Votre demande de congé a été " + status + ".\n\n"
+                + "Détails : " + details + "\n\n"
                 + "Cordialement,\nL'équipe des Ressources Humaines");
         mailSender.send(message);
     }

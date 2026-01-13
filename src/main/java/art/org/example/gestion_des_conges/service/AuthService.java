@@ -1,5 +1,6 @@
 package art.org.example.gestion_des_conges.service;
 
+import art.org.example.gestion_des_conges.config.AppConfig;
 import art.org.example.gestion_des_conges.dto.LoginRequest;
 import art.org.example.gestion_des_conges.dto.LoginResponse;
 import art.org.example.gestion_des_conges.dto.ResetPasswordRequest;
@@ -24,15 +25,21 @@ public class AuthService {
     private final JwtTokenProvider tokenProvider;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
+    private final AppConfig appConfig;
 
     public AuthService(AuthenticationManager authenticationManager,
                        JwtTokenProvider tokenProvider,
                        UserRepository userRepository,
-                       PasswordEncoder passwordEncoder) {
+                       PasswordEncoder passwordEncoder,
+                       EmailService emailService,
+                       AppConfig appConfig) {
         this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
+        this.appConfig = appConfig;
     }
 
     /**
@@ -106,12 +113,23 @@ public class AuthService {
 
         String resetToken = UUID.randomUUID().toString();
         user.setResetToken(resetToken);
-        user.setResetTokenExpiry(LocalDateTime.now().plusHours(24)); // Token valide 24h
+        user.setResetTokenExpiry(LocalDateTime.now().plusHours(24));
 
         userRepository.save(user);
 
-        // TODO: Envoyer email avec le lien de réinitialisation
-        // emailService.sendPasswordResetEmail(user.getEmail(), resetToken);
+        // Envoyer email avec le lien de réinitialisation
+        String resetLink = appConfig.getFrontendUrl() + "/reset-password?token=" + resetToken;
+        try {
+            emailService.sendPasswordResetEmail(
+                    user.getEmail(),
+                    user.getFirstName() + " " + user.getLastName(),
+                    resetLink
+            );
+            System.out.println("📧 Email de réinitialisation envoyé à: " + user.getEmail());
+        } catch (Exception e) {
+            System.err.println("❌ Erreur lors de l'envoi de l'email: " + e.getMessage());
+            // Ne pas lever d'exception, continuer quand même
+        }
 
         return resetToken;
     }

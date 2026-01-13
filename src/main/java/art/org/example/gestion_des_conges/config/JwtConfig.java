@@ -10,8 +10,10 @@ import org.springframework.context.annotation.Configuration;
 public class JwtConfig {
 
     private String secret;
-    private long expiration;
+    private long expiration; // en millisecondes
+    private long refreshExpiration; // pour les refresh tokens
 
+    // Getters et Setters
     public String getSecret() {
         return secret;
     }
@@ -26,5 +28,13 @@ public class JwtConfig {
 
     public void setExpiration(long expiration) {
         this.expiration = expiration;
+    }
+
+    public long getRefreshExpiration() {
+        return refreshExpiration;
+    }
+
+    public void setRefreshExpiration(long refreshExpiration) {
+        this.refreshExpiration = refreshExpiration;
     }
 }

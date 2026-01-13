@@ -50,9 +50,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // Compter les utilisateurs par rôle (pour statistiques)
     Long countByRole(User.Role role);
 
-    // Trouver les utilisateurs avec solde de congés inférieur à un seuil
-    @Query("SELECT u FROM User u WHERE u.soldeCongesPayes < :seuil")
-    List<User> findUsersWithLowLeaveBalance(@Param("seuil") Double seuil);
+
 
     // Recherche avancée avec multiple critères
     @Query("SELECT u FROM User u WHERE " +

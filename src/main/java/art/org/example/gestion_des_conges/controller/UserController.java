@@ -4,13 +4,17 @@ import art.org.example.gestion_des_conges.dto.CreateUserRequest;
 import art.org.example.gestion_des_conges.dto.UpdateUserRequest;
 import art.org.example.gestion_des_conges.dto.UserDTO;
 import art.org.example.gestion_des_conges.entity.User;
+import art.org.example.gestion_des_conges.repository.UserRepository;
 import art.org.example.gestion_des_conges.service.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -24,6 +28,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired // AJOUTER CETTE INJECTION
+    private UserRepository userRepository;
 
     /**
      * US-02.1 : Créer un utilisateur
@@ -44,6 +51,21 @@ public class UserController {
             @RequestParam(required = false) Long teamId) {
 
         List<UserDTO> users = userService.searchUsers(search, role, teamId);
+        return ResponseEntity.ok(users);
+    }
+    /**
+     * US-02.3 : Recherche avancée d'utilisateurs
+     * GET /api/users/search?q=...
+     *
+     * Cette route DOIT être placée AVANT /{id} pour éviter les conflits
+     */
+    @GetMapping("/search")
+    public ResponseEntity<List<UserDTO>> searchUsers(
+            @RequestParam String q,
+            @RequestParam(required = false) User.Role role,
+            @RequestParam(required = false) Long teamId) {
+
+        List<UserDTO> users = userService.searchUsers(q, role, teamId);
         return ResponseEntity.ok(users);
     }
 
@@ -143,5 +165,26 @@ public class UserController {
         Map<String, Boolean> response = new HashMap<>();
         response.put("available", isAvailable);
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * AJOUTER cette méthode pour permettre aux employés de voir leur propre profil
+     */
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserDTO> getMyProfile() {
+        UserDTO currentUser = userService.getCurrentUserProfile();
+        return ResponseEntity.ok(currentUser);
+    }
+
+    /**
+     * OPTIONNEL: Ajouter une méthode pour permettre à un utilisateur de voir son propre profil
+     * mais aussi aux admins de voir n'importe quel profil
+     */
+    @GetMapping("/profile/{id}")
+    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
+    public ResponseEntity<UserDTO> getUserProfile(@PathVariable Long id) {
+        UserDTO user = userService.getUserById(id);
+        return ResponseEntity.ok(user);
     }
 }

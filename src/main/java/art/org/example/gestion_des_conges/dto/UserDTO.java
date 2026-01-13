@@ -14,7 +14,5 @@ public class UserDTO {
     private Boolean actif;     // active
     private Long teamId;
     private String teamNom;
-    private Double soldeCongesPayes;
-    private Double soldeMaladie;
-    private Double soldeExceptionnel;
+
 }

@@ -11,6 +11,8 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -292,10 +294,7 @@ public class UserService {
             dto.setTeamNom(user.getTeam().getName());
         }
 
-        // Ajouter les soldes de congés
-        dto.setSoldeCongesPayes(user.getSoldeCongesPayes());
-        dto.setSoldeMaladie(user.getSoldeMaladie());
-        dto.setSoldeExceptionnel(user.getSoldeExceptionnel());
+
 
         return dto;
     }
@@ -318,5 +317,20 @@ public class UserService {
             return !userRepository.existsByUsername(username);
         }
         return !userRepository.existsByUsernameExcludingId(username, excludeUserId);
+    }
+    /**
+     * Récupérer le profil de l'utilisateur actuellement connecté
+     */
+    public UserDTO getCurrentUserProfile() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new RuntimeException("Aucun utilisateur authentifié");
+        }
+
+        String username = auth.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("Utilisateur non trouvé"));
+
+        return convertToDTO(user);
     }
 }
